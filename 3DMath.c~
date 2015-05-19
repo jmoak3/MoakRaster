@@ -162,10 +162,9 @@ void TransformRay(Transform * t, Ray * srcR, Ray * destR)
 	TransformVec(t, &(srcR->o), &(destR->o));
 	TransformVec(t, &(srcR->d), &(destR->d));
 	destR->min = srcR->min;
-	destR->dist = srcR->dist;
 }
 
-void Normalize(Vector3 * srcV, Vector3 * destV)
+void NormalizeVec3(Vector3 * srcV, Vector3 * destV)
 {
 	float x = srcV->x; float y = srcV->y; float z = srcV->z; 
 	float inv = 1.f/sqrtf(x*x + y*y + z*z);
@@ -174,32 +173,37 @@ void Normalize(Vector3 * srcV, Vector3 * destV)
 	destV->z = z*inv;
 }
 
-float Dot(Vector *v1, Vector *v2)
+float DotVec3(Vector3 *v1, Vector3 *v2)
 { 
 	return (v1->x*v2->x + v1->y*v2->y + v1->z*v2->z); 
 }
 
-void Cross(Vector *v1, Vector *v2, Vector *outV)
+void CrossVec3(Vector3 *v1, Vector3 *v2, Vector3 *outV)
 {
 	outV->x = (v1->y * v2->z) - (v1->z * v2->y);
 	outV->y = (v1->z * v2->x) - (v1->x * v2->z);
 	outV->z = (v1->x * v2->y) - (v1->y * v2->x);
 }
 
-void SubVec(Vector3 * v1, Vector3 * v2, Vector3 * outV)
+void SubVec3(Vector3 * v1, Vector3 * v2, Vector3 * outV)
 {
 	outV->x = v1->x - v2->x;
 	outV->y = v1->y - v2->y;
 	outV->z = v1->z - v2->z;
 }
 
-void AddVec(Vector3 * v1, Vector3 * v2, Vector3 * outV)
+void AddVec3(Vector3 * v1, Vector3 * v2, Vector3 * outV)
 {
 	outV->x = v1->x + v2->x;
 	outV->y = v1->y + v2->y;
 	outV->z = v1->z + v2->z;
 }
 
-
+float Minimum(float a, float b)
+{
+	float min = a;
+	if (b < a) min = b;
+	return min;
+}
 
 

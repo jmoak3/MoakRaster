@@ -5,6 +5,12 @@ typedef struct
 {
 	float x=0.f;
 	float y=0.f;
+} Vector2;
+
+typedef struct
+{
+	float x=0.f;
+	float y=0.f;
 	float z=0.f;
 	float filler=0.f;
 } Vector3;
@@ -38,10 +44,10 @@ inline Transform RotateZ(float angle);
 void TransformVec(Transform * t, Vector3 * srcV, Vector3 * destV);
 void TransformTrans(Transform * t, Transform *srcT, Transform *destT);
 void TransformRay(Transform * t, Ray * srcR, Ray * destR);
-void Normalize(Vector3 * srcV, Vector3 * destV);
-float Dot(Vector *v1, Vector *v2);
-void Cross(Vector *v1, Vector *v2, Vector *outV);
-void SubVec(Vector3 * v1, Vector3 * v2, Vector3 * outV);
-void AddVec(Vector3 * v1, Vector3 * v2, Vector3 * outV);
-
+void NormalizeVec3(Vector3 * srcV, Vector3 * destV);
+float DotVec3Vector3 *v1, Vector3 *v2);
+void CrossVec3(Vector3 *v1, Vector3 *v2, Vector3 *outV);
+void SubVec3(Vector3 * v1, Vector3 * v2, Vector3 * outV);
+void AddVec3(Vector3 * v1, Vector3 * v2, Vector3 * outV);
+float Minimum
 #endif
