@@ -162,6 +162,7 @@ void TransformRay(Transform * t, Ray * srcR, Ray * destR)
 	TransformVec(t, &(srcR->o), &(destR->o));
 	TransformVec(t, &(srcR->d), &(destR->d));
 	destR->min = srcR->min;
+	destR->dist = srcR->dist;
 }
 
 void Normalize(Vector3 * srcV, Vector3 * destV)

@@ -15,4 +15,4 @@ typedef struct
 } Triangle;
 
 bool DoesIntersectTri(Triangle * tri, Ray * ray, Hit * hit);
-bool DoesIntersectMesh(TriangleMesh * mesh, Ray * ray, Hit * hit);
+bool DoesIntersectMesh(TriangleMesh * tri, Ray * ray, Hit * hit);
