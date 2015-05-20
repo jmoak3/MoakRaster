@@ -44,4 +44,5 @@ bool DoesIntersectTri(Triangle * tri, Ray * ray, Hit * hit)
 	hit->shapeID = ShapeID;
 	hit->color = Mat;
 	return true;
+
 }
