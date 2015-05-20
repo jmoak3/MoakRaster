@@ -1,5 +1,7 @@
 #include "3DMath.h"
 
+
+
 bool DoesIntersectTri(Triangle * tri, Ray * ray, Hit * hit)
 {
 	//BEFORE TESTING IF TRI INTERSECT, ALWAYS TEST THAT MESH INTERSECT FIRST!!!!!!

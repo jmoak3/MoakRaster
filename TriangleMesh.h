@@ -5,6 +5,9 @@
 #include "Material.h"
 #include "BoundingBox.h"
 
+//TODO: INITIALIZE MESH!!!!!
+//Loading Meshes
+
 typedef struct 
 {
 	float tHit = INFINITY;
@@ -23,7 +26,7 @@ typedef struct
 	int *vertIndices;
 	Vector3 *vertPoints;
 	BoundingBox2D bbox;
-
+	
 } TriangleMesh;
 
 typedef struct
@@ -31,9 +34,11 @@ typedef struct
 	Transform * o2w;
 	TriangleMesh * mesh;
 	BoundingBox2D bbox;
-
+	
 } Triangle;
 
+
+bool GetTrianglesFromMesh(TriangleMesh * mesh, Triangle * triangles);
 bool DoesIntersectTri(Triangle * tri, Ray * ray, Hit * hit);
 bool DoesIntersectMesh(TriangleMesh * mesh, Ray * ray, Hit * hit);
 
