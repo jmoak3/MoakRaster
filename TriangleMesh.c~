@@ -2,8 +2,9 @@
 
 bool DoesIntersectTri(Triangle * tri, Ray * ray, Hit * hit)
 {
-	//if (!WorldBounds.Intersect(ray)) //ADD BB TO TRI
-	//	return false;
+	//BEFORE TESTING IF TRI INTERSECT, ALWAYS TEST THAT MESH INTERSECT FIRST!!!!!!
+	if (!DoesIntersectBBox2D(&(tri->bbox), ray) 
+		return false;
 	Ray r = *ray;
 	
 	Vector3 a = tri->mesh->vertPoints[tri->vert[0]];

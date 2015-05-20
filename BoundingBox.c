@@ -1,4 +1,5 @@
 #include "BoundingBox.c"
+#include <math.h>
 
 void Union(BoundingBox *b1, BoundingBox *b2, BoundingBox *outb)
 {

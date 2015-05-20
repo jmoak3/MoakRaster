@@ -11,6 +11,6 @@ typedef struct
 
 
 void Union(BoundingBox *b1, BoundingBox *b2, BoundingBox *outb);
-
 bool DoesIntersectBBox2D(BoundingBox2D *bbox, Ray * ray);
+
 #endif

@@ -50,4 +50,5 @@ void CrossVec3(Vector3 *v1, Vector3 *v2, Vector3 *outV);
 void SubVec3(Vector3 * v1, Vector3 * v2, Vector3 * outV);
 void AddVec3(Vector3 * v1, Vector3 * v2, Vector3 * outV);
 float Minimum(float a, float b);
+
 #endif

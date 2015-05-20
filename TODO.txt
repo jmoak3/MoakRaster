@@ -1,5 +1,4 @@
-Bounding Box Struct
-Bounding Box Functions:
-	Union
-	Intersecting
+Compile it and test
+Implement Raster Algorithm
+
 

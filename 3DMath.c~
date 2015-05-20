@@ -18,7 +18,7 @@ extern Transform MakeTranslation(Vector3 * v)
 	t.m[2][1] = 0.f;
 	t.m[2][2] = 1.f;
 	t.m[2][3] = v->z;
-
+	
 	t.m[3][0] = 0.f;
 	t.m[3][1] = 0.f;
 	t.m[3][2] = 0.f;
