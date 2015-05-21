@@ -1,6 +1,35 @@
 #include "3DMath.h"
+#include "MeshLoad.h"
 
+void FormTriangleMesh(char * fileName, TriangleMesh * mesh, Transform * t, Material * mat)
+{
+	int sizePts = 8;
+	int sizeInds = 12;
+	int * indices = (int*)malloc(sizeof(int)*initialPts);
+	Vector3 * points = (Vector3*)malloc(sizeof(Vector3)*initialInds);
+	int numInd = 0;
+	int numPoints = 0;
+	MeshLoad("dragon.obj", indices, points, &numInd, &numPoints, sizePts, sizeInds);
+	if (*mesh==NULL) printf("MESH IS NULL!!!\n");
+	*mesh.
+	/*
+	Transform * o2w;
+	Material material;
+	int numTris;
+	int numVerts;
+	int *vertIndices;
+	Vector3 *vertPoints;
+	BoundingBox2D bbox;
+	*/
+}
 
+void GetTrianglesFromMesh(TriangleMesh * mesh, Triangle * triangles)
+{
+	Primitive *Tri = new Triangle(
+			mesh->ObjectToWorld, mesh->WorldToObject, 
+			mesh->Mat, mesh, i);
+		scene->push_back(Tri);
+}
 
 bool DoesIntersectTri(Triangle * tri, Ray * ray, Hit * hit)
 {
@@ -30,7 +59,7 @@ bool DoesIntersectTri(Triangle * tri, Ray * ray, Hit * hit)
 	float b1 = DotVec3(&s, &s1)*invDenom;
 	if (b1 < 0.f || b1 > 1.f)
 		return false;
-
+	
 	Vector3 s2;
 	CrossVec3(&s, &e1, &s2);
 	float b2 = DotVec3(&(r.d), &s2)*invDenom;

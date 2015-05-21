@@ -37,8 +37,8 @@ typedef struct
 	
 } Triangle;
 
-
-bool GetTrianglesFromMesh(TriangleMesh * mesh, Triangle * triangles);
+void FormTriangleMesh(
+void GetTrianglesFromMesh(TriangleMesh * mesh, Triangle * triangles);
 bool DoesIntersectTri(Triangle * tri, Ray * ray, Hit * hit);
 bool DoesIntersectMesh(TriangleMesh * mesh, Ray * ray, Hit * hit);
 
