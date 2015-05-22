@@ -3,17 +3,16 @@
 
 #include "3DMath.h"
 #include "Material.h"
-#include "BoundingBox.h"
 
 //TODO: INITIALIZE MESH!!!!!
 //Loading Meshes
 
 typedef struct 
 {
-	float tHit = INFINITY;
-	float eps = 0.f;
+	float tHit;
+	float eps;
 	Material material;
-	int shapeID = -1;
+	int shapeID;
 	BoundingBox2D bbox;
 } Hit;
 
@@ -37,9 +36,9 @@ typedef struct
 	
 } Triangle;
 
-void FormTriangleMesh(
+void FormTriangleMesh(char * fileName, TriangleMesh * mesh, Transform * t, Material * mat);
 void GetTrianglesFromMesh(TriangleMesh * mesh, Triangle * triangles);
-bool DoesIntersectTri(Triangle * tri, Ray * ray, Hit * hit);
-bool DoesIntersectMesh(TriangleMesh * mesh, Ray * ray, Hit * hit);
+int DoesIntersectTri(Triangle * tri, Ray * ray, Hit * hit);
+int DoesIntersectMesh(TriangleMesh * mesh, Ray * ray, Hit * hit);
 
 #endif

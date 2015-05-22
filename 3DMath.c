@@ -1,4 +1,5 @@
 #include "3DMath.h"
+#include <math.h>
 
 extern Transform MakeTranslation(Vector3 * v)
 {
@@ -137,7 +138,7 @@ extern Transform RotateZ(float angle);
 	return t;
 }
 
-void TransformVec(Transform * t, Vector3 * srcV, Vector3 * destV)
+void TransformVec3(Transform * t, Vector3 * srcV, Vector3 * destV)
 {
 	float x = srcV->x; float y = srcV->y; float z = srcV->z;
 	destV->x = t->m[0][0]*x + t->m[0][1]*y + t->m[0][2]*z + t->m[0][3];
@@ -156,12 +157,21 @@ void TransformTrans(Transform * t1, Transform *t2, Transform *destT)
 							t1->m[i][3] * t2->m[3][j];
 }
 
-
 void TransformRay(Transform * t, Ray * srcR, Ray * destR)
 {
 	TransformVec(t, &(srcR->o), &(destR->o));
 	TransformVec(t, &(srcR->d), &(destR->d));
 	destR->min = srcR->min;
+}
+
+void TransformBBox(Transform * t, BoundingBox * srcBox, BoundingBox * destBox);
+{
+	const Transform &T = (*this);
+	Vector3 transformedVec;
+	TransformVec3(t, &(srcBox->min), &transformedVec);
+	destBox->min = &transformedVec;
+	TransformVec3(t, &(srcBox->max), &transformedVec);
+	destBox->max = &transformedVec;
 }
 
 void NormalizeVec3(Vector3 * srcV, Vector3 * destV)
@@ -204,6 +214,65 @@ float Minimum(float a, float b)
 	float min = a;
 	if (b < a) min = b;
 	return min;
+}
+
+float Maximum(float a, float b)
+{
+	float max = a;
+	if (b > a) max = b;
+	return max;
+}
+
+
+void UnionBB(BoundingBox2D *b1, BoundingBox *b2, BoundingBox2D *outb)
+{
+	outb->min.x = Minimum(b1->min.x, b2->min.x);
+	outb->min.y = Minimum(b1->min.y, b2->min.y);
+	outb->max.x = Maximum(b1->max.x, b2->max.x);
+	outb->max.y = Maximum(b1->max.y, b2->max.y);
+}
+
+void UnionVec3(BoundingBox2D *b1, Vector3 *pt, BoundingBox2D *outb)
+{
+	outb->min.x = Minimum(b1->min.x, pt->x);
+	outb->min.y = Minimum(b1->min.y, pt->y);
+	outb->max.x = Maximum(b1->max.x, pt->x);
+	outb->max.y = Maximum(b1->max.y, pt->y);
+}
+
+int DoesIntersectBBox2D(BoundingBox2D *bbox, Ray * ray)
+{
+	float t0 = ray->min;
+ 	float t1 = INFINITY;
+	float invRayDir = 1.f / ray->d.x;
+	float tNear = (bbox->min.x - ray->o.x) * invRayDir;
+	float tFar = (bbox->max.x - ray->o.x) * invRayDir;
+	if (tNear > tFar)
+	{
+		float temp = tFar;
+		tFar = tNear;
+		tNear = tFar;			
+	}
+	t0 = tNear > t0 ? tNear : t0;
+	t1 = tFar < t1 ? tFar : t1;
+	if (t0 > t1) return 0;
+	
+	invRayDir = 1.f / ray->d.y;
+	tNear = (bbox->min.y - ray->o.y) * invRayDir;
+	tFar = (bbox->max.y - ray->o.y) * invRayDir;
+	if (tNear > tFar)
+	{
+		float temp = tFar;
+		tFar = tNear;
+		tNear = tFar;			
+	}
+	t0 = tNear > t0 ? tNear : t0;
+	t1 = tFar < t1 ? tFar : t1;
+	if (t0 > t1) return 0;
+
+	if (t0 < ray->min)
+		return 0;
+ 	return 1;
 }
 
 

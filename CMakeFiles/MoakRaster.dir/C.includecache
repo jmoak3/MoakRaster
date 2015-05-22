@@ -6,7 +6,21 @@
 
 #IncludeRegexTransform: 
 
+/home/jmoak3/Documents/Programming/Repositories/MoakRaster/3DMath.h
+
+/home/jmoak3/Documents/Programming/Repositories/MoakRaster/Material.h
+
 /home/jmoak3/Documents/Programming/Repositories/MoakRaster/MoakRaster.c
 stdio.h
 -
+3DMath.h
+/home/jmoak3/Documents/Programming/Repositories/MoakRaster/3DMath.h
+TriangleMesh.h
+/home/jmoak3/Documents/Programming/Repositories/MoakRaster/TriangleMesh.h
+
+/home/jmoak3/Documents/Programming/Repositories/MoakRaster/TriangleMesh.h
+3DMath.h
+/home/jmoak3/Documents/Programming/Repositories/MoakRaster/3DMath.h
+Material.h
+/home/jmoak3/Documents/Programming/Repositories/MoakRaster/Material.h
 

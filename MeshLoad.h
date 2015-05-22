@@ -3,13 +3,6 @@
 
 bool LoadMesh(char * fileName, int * indices, Vector3 * points, int *numInds, int *numPts, int sizePts, int sizeInds)
 {
-	/*
-	std::vector<float> *points,
-					std::vector<int> * indices, 
-					std::vector<float> * normals, 
-					std::vector<float> * uv)
-	*/
-	
 	char header[64];
 	FILE *fp = fopen(fileName, 'r');
 	*numPts = 0;
@@ -88,24 +81,18 @@ bool LoadMesh(char * fileName, int * indices, Vector3 * points, int *numInds, in
 	}
 	fclose(fp);
 
-	/*if (1)
+	if (1)
 	{	
-		std::ofstream check;
-		check.open("check.txt", std::ios::out);
-	
-
-		for (int i=0;i<points->size();i+=3)
+		int i=0;
+		FILE *fp = fopen(fileName, 'r');
+		for (i=0;i<numPoints;i+=1)
 		{
-			check << "v " << (*points)[i] << " " << (*points)[i+1] << " " << (*points)[i+2] << std::endl;
+			fprintf(fp, "%f, %f, %f\n", points[i].x, points[i].y, points[i].z);
 		}
-		for (int i=0;i<normals->size();i+=3)
+		for (i=0;i<numInds;i+=3)
 		{
-			check << "vn " << (*normals)[i] << " " << (*normals)[i+1] << " " << (*normals)[i+2] << std::endl;
-		}
-		for (int i=0;i<indices->size();i+=3)
-		{
-			check << "f " << (*indices)[i] << " " << (*indices)[i+1] << " " << (*indices)[i+2] << std::endl;
+			fprintf(fp, "%f, %f, %f\n", indices[i], points[i+1], points[i+2]);
 		}
 		check.close();
-	}*/
+	}
 }

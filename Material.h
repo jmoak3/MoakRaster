@@ -3,10 +3,10 @@
 
 typedef struct 
 {
-	float red=0.f;
-	float green=0.f;
-	float blue=0.f;
-	float filler=0.f;
+	float red;
+	float green;
+	float blue;
+	float filler;
 } Material;
 
 #endif
