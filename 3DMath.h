@@ -1,5 +1,5 @@
-#ifndef MATH_H
-#define MATH_H
+#ifndef THREEDMATH_H
+#define THREEDMATH_H
 
 typedef struct
 {
@@ -43,7 +43,7 @@ typedef struct
 } BoundingBox2D;
 
 
-inline Transform MakeTranslation(Vector3 * v); // define using extern
+Transform MakeTranslation(Vector3 * v); // define using extern
 inline Transform MakeScale(Vector3 * v);
 inline Transform RotateX(float angle);
 inline Transform RotateY(float angle);

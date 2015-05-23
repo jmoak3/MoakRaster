@@ -13,8 +13,6 @@
 /home/jmoak3/Documents/Programming/Repositories/MoakRaster/MoakRaster.c
 stdio.h
 -
-3DMath.h
-/home/jmoak3/Documents/Programming/Repositories/MoakRaster/3DMath.h
 TriangleMesh.h
 /home/jmoak3/Documents/Programming/Repositories/MoakRaster/TriangleMesh.h
 

@@ -1,7 +1,7 @@
 #include "3DMath.h"
 #include <math.h>
 
-extern Transform MakeTranslation(Vector3 * v)
+Transform MakeTranslation(Vector3 * v)
 {
 	Transform t;
 	
@@ -28,7 +28,7 @@ extern Transform MakeTranslation(Vector3 * v)
 	return t;
 }
 
-extern Transform MakeScale(Vector3 * v);
+Transform MakeScale(Vector3 * v);
 {
 	Transform t;
 	
