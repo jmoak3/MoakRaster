@@ -1,40 +1,69 @@
 #include "TriangleMesh.h"
 #include "MeshLoad.h"
+#include <stdio.h>
+#include <string.h>
 
 void FormTriangleMesh(char * fileName, TriangleMesh * mesh, Transform * t, Material * mat)
 {
-	int sizePts = 8;
-	int sizeInds = 12;
-	int * indices = (int*)malloc(sizeof(int)*sizePts);
-	Vector3 * points = (Vector3*)malloc(sizeof(Vector3)*sizeInds);
+	printf("Inside FormTriangleMesh\n");
+	int ** indices = malloc(sizeof(int*));
+	Vector3 ** points = malloc(sizeof(Vector3*));
 	int numInd = 0;
 	int numPts = 0;
-	LoadMesh("dragon.obj", indices, points, &numInd, &numPts, sizePts, sizeInds);
+	printf("Loading Mesh:\n");
+	LoadMesh("sphere.obj", indices, points, &numInd, &numPts);
+	printf("Mesh Loaded Correctly\n");
 
-	//Generate Bounding Box
-	BoundingBox2D bbox; bbox.min.x = points[0].x; bbox.min.y = points[0].y; 
-						bbox.max.x = points[0].x; bbox.max.y = points[0].y;
-	int i=0;
-	for (i=0;i<numPts;++i)
-		UnionVec3(&bbox, &points[i], &bbox);
-	
+	if (1)
+	{	
+		int i=0;
+		FILE*fp = fopen("test2.txt", "w");
+		for (i=0;i<numPts;i+=1)
+		{
+			fprintf(fp, "%f, %f, %f\n", (*points)[i].x, (*points)[i].y, (*points)[i].z);
+		}
+		for (i=0;i<numInd;i+=3)
+		{
+			fprintf(fp, "%i, %i, %i\n", (*indices)[i], (*indices)[i+1], (*indices)[i+2]);
+		}
+		fclose(fp);
+	}
+
 	mesh->o2w = t;
 	mesh->material = *mat;
 	mesh->numTris = numInd/3;
-	mesh->numVerts = numPts/3;
-	mesh->vertIndices = indices;
-	mesh->vertPoints = points;
+	mesh->numVerts = numPts;
+	//mesh->vertIndices = malloc(sizeof(int)*numInd);
+	//mesh->vertPoints = malloc(sizeof(Vector3)*numPts);
+	//memcpy(mesh->vertIndices, indices, sizeof(int)*numInd);
+	//memcpy(mesh->vertPoints, points, sizeof(Vector3)*numPts);
+	mesh->vertIndices = *indices;
+	mesh->vertPoints = *points;
+	int i=0;
+	for (i=0;i<numPts;++i) // Transform to world space!
+		TransformVec3(t, &(mesh->vertPoints[i]), &(mesh->vertPoints[i]));
+	//Generate Bounding Box
+	BoundingBox2D bbox; bbox.min.x = (*points)[i].x; bbox.min.y = (*points)[i].y; 
+						bbox.max.x = (*points)[i].x; bbox.max.y = (*points)[i].y;
+	for (i=0;i<numPts;++i)
+		UnionVec3(&bbox, &(*points)[i], &bbox);
 	mesh->bbox = bbox;
 	mesh->shapeID = -1; //FIX ME LATER
-	/*
-	Transform * o2w;
-	Material material;
-	int numTris;
-	int numVerts;
-	int *vertIndices;
-	Vector3 *vertPoints;
-	BoundingBox2D bbox;
-	*/
+
+	if (1)
+	{	
+		int i=0;
+		FILE*fp = fopen("test3.txt", "w");
+		for (i=0;i<numPts;i+=1)
+		{
+			fprintf(fp, "%f, %f, %f\n", mesh->vertPoints[i].x, mesh->vertPoints[i].y, mesh->vertPoints[i].z);
+		}
+		for (i=0;i<numInd;i+=3)
+		{
+			fprintf(fp, "%i, %i, %i\n", mesh->vertIndices[i], mesh->vertIndices[i+1], mesh->vertIndices[i+2]);
+		}
+		fclose(fp);
+	}
 }
 
 void GetTrianglesFromMesh(TriangleMesh * mesh, Triangle * tri)
@@ -45,16 +74,19 @@ void GetTrianglesFromMesh(TriangleMesh * mesh, Triangle * tri)
 		Triangle t;
 		t.o2w = mesh->o2w;
 		t.mesh = mesh;
-		t.vert = malloc(sizeof(int)*3);
 		t.vert = &(mesh->vertIndices[3*i]);
-		
+		printf("Tri verts initialized\n");
+		Vector3 g = mesh->vertPoints[1];
+		printf("%f %f %f\n", g.x, g.y, g.z);
 		Vector3 a = mesh->vertPoints[t.vert[0]];
 		Vector3 b = mesh->vertPoints[t.vert[1]];
 		Vector3 c = mesh->vertPoints[t.vert[2]];
+		printf("bbox initializing\n");
 		BoundingBox2D bbox; bbox.min.x = a.x; bbox.min.y = a.y;
 						    bbox.max.x = a.x; bbox.max.y = a.y;
 		UnionVec3(&bbox, &b, &bbox);
 		UnionVec3(&bbox, &c, &bbox);
+		printf("BBox initialized\n");
 		t.bbox = bbox;
 		tri[i] = t;
 	}
@@ -112,13 +144,31 @@ int DoesIntersectMesh(TriangleMesh * mesh, Ray * ray, Hit * hit)
 		return 0;
 	Triangle * tris = (Triangle*)malloc(sizeof(Triangle)*mesh->numTris);
 	GetTrianglesFromMesh(mesh, tris);
+	int result=0;
 	int i=0;
-	
-	return 1;
+	for (i=0;i<mesh->numTris;++i)
+	{
+		result = result || DoesIntersectTri(&tris[i], ray, hit);
+	}
+	return result;
 }
 
 
+int ReleaseMeshData(TriangleMesh * mesh)
+{
+	free(mesh->vertIndices);
+	free(mesh->vertPoints);
+	free(mesh->o2w);
+}
 
-
-
-
+int ReleaseTriangleDataOnly(Triangle * tris)
+{
+	int numTris = tris[0].mesh->numTris;
+	int i=0;
+	for (i=0;i<numTris;++i)
+	{
+		free(tris[i].o2w);
+		free(tris[i].vert);
+	}
+	free(tris);
+}

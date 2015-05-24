@@ -8,6 +8,7 @@
 *.so
 *.includecache
 *.gch 
+*.txt
 
 # Packages #
 ############

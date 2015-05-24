@@ -40,5 +40,7 @@ void FormTriangleMesh(char * fileName, TriangleMesh * mesh, Transform * t, Mater
 void GetTrianglesFromMesh(TriangleMesh * mesh, Triangle * triangles);
 int DoesIntersectTri(Triangle * tri, Ray * ray, Hit * hit);
 int DoesIntersectMesh(TriangleMesh * mesh, Ray * ray, Hit * hit);
+int ReleaseMeshData(TriangleMesh * mesh);
+int ReleaseTriangleDataOnly(Triangle * tris);
 
 #endif
