@@ -65,8 +65,8 @@ int LoadMesh(char * fileName, int * indices, Vector3 * points, int *numInds, int
 				}
 				int bummy = atoi(tri);
 				//printf(" %i", bummy);
-				assert(bummy-1>-1);
-				assert(bummy<*numPts);
+				//assert(bummy-1>-1);
+				//assert(bummy<*numPts);
 				indices[*numInds] = bummy-1;
 				++(*numInds);
 				if (*numInds >= sizeInds) 

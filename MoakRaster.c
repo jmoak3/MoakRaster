@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "3DMath.h"
 #include "TriangleMesh.h"
-
+#include <malloc.h>
 int main()
 {
 	printf("Hello World\n");

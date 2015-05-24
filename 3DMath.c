@@ -166,8 +166,8 @@ void TransformTrans(Transform * t1, Transform *t2, Transform *destT)
 
 void TransformRay(Transform * t, Ray * srcR, Ray * destR)
 {
-	TransformVec(t, &(srcR->o), &(destR->o));
-	TransformVec(t, &(srcR->d), &(destR->d));
+	TransformVec3(t, &(srcR->o), &(destR->o));
+	TransformVec3(t, &(srcR->d), &(destR->d));
 	destR->min = srcR->min;
 }
 

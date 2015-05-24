@@ -9,14 +9,14 @@ void FormTriangleMesh(char * fileName, TriangleMesh * mesh, Transform * t, Mater
 	Vector3 * points = (Vector3*)malloc(sizeof(Vector3)*sizeInds);
 	int numInd = 0;
 	int numPts = 0;
-	MeshLoad("dragon.obj", indices, points, &numInd, &numPts, sizePts, sizeInds);
+	LoadMesh("dragon.obj", indices, points, &numInd, &numPts, sizePts, sizeInds);
 
 	//Generate Bounding Box
 	BoundingBox2D bbox; bbox.min.x = points[0].x; bbox.min.y = points[0].y; 
 						bbox.max.x = points[0].x; bbox.max.y = points[0].y;
 	int i=0;
 	for (i=0;i<numPts;++i)
-		Union(&bbox, &points[i], &bbox);
+		UnionVec3(&bbox, &points[i], &bbox);
 	
 	mesh->o2w = t;
 	mesh->material = *mat;
@@ -53,8 +53,8 @@ void GetTrianglesFromMesh(TriangleMesh * mesh, Triangle * tri)
 		Vector3 c = mesh->vertPoints[t.vert[2]];
 		BoundingBox2D bbox; bbox.min.x = a.x; bbox.min.y = a.y;
 						    bbox.max.x = a.x; bbox.max.y = a.y;
-		Union(&bbox, &b, &bbox);
-		Union(&bbox, &c, &bbox);
+		UnionVec3(&bbox, &b, &bbox);
+		UnionVec3(&bbox, &c, &bbox);
 		t.bbox = bbox;
 		tri[i] = t;
 	}
@@ -71,7 +71,7 @@ int DoesIntersectTri(Triangle * tri, Ray * ray, Hit * hit)
 	Vector3 b = tri->mesh->vertPoints[tri->vert[1]];
 	Vector3 c = tri->mesh->vertPoints[tri->vert[2]];
 	Vector3 e1;
-	SubVec(&b, &a, &e1);
+	SubVec3(&b, &a, &e1);
 	Vector3 e2;
 	SubVec3(&c, &a, &e2);
 	Vector3 s1; 
@@ -111,7 +111,7 @@ int DoesIntersectMesh(TriangleMesh * mesh, Ray * ray, Hit * hit)
 	if (!DoesIntersectBBox2D(&(mesh->bbox), ray) )
 		return 0;
 	Triangle * tris = (Triangle*)malloc(sizeof(Triangle)*mesh->numTris);
-	GetTrisFromMesh(mesh, tris);
+	GetTrianglesFromMesh(mesh, tris);
 	int i=0;
 	
 	return 1;
