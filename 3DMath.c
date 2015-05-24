@@ -28,7 +28,7 @@ Transform MakeTranslation(Vector3 * v)
 	return t;
 }
 
-Transform MakeScale(Vector3 * v);
+Transform MakeScale(Vector3 * v)
 {
 	Transform t;
 	
@@ -54,7 +54,7 @@ Transform MakeScale(Vector3 * v);
 	return t;
 }
 
-extern Transform RotateX(float angle);
+extern Transform RotateX(float angle)
 {
 	Transform t;
 
@@ -82,7 +82,7 @@ extern Transform RotateX(float angle);
 	return t;
 }
 
-extern Transform RotateY(float angle);
+extern Transform RotateY(float angle)
 {
 	Transform t;
 
@@ -110,7 +110,7 @@ extern Transform RotateY(float angle);
 	return t;
 }
 
-extern Transform RotateZ(float angle);
+extern Transform RotateZ(float angle)
 {
 	Transform t;
 
@@ -136,6 +136,13 @@ extern Transform RotateZ(float angle);
 	t.m[3][2] = 0.f;
 	t.m[3][3] = 1.f;
 	return t;
+}
+
+void TransformVec2(Transform * t, Vector2 * srcV, Vector2 * destV)
+{
+	float x = srcV->x; float y = srcV->y;
+	destV->x = t->m[0][0]*x + t->m[0][1]*y + t->m[0][3];
+	destV->y = t->m[1][0]*x + t->m[1][1]*y + t->m[1][3];
 }
 
 void TransformVec3(Transform * t, Vector3 * srcV, Vector3 * destV)
@@ -164,14 +171,14 @@ void TransformRay(Transform * t, Ray * srcR, Ray * destR)
 	destR->min = srcR->min;
 }
 
-void TransformBBox(Transform * t, BoundingBox * srcBox, BoundingBox * destBox);
+void TransformBBox(Transform * t, BoundingBox2D * srcBox, BoundingBox2D * destBox)
 {
-	const Transform &T = (*this);
-	Vector3 transformedVec;
-	TransformVec3(t, &(srcBox->min), &transformedVec);
-	destBox->min = &transformedVec;
-	TransformVec3(t, &(srcBox->max), &transformedVec);
-	destBox->max = &transformedVec;
+	Vector2 transformedVec;
+	TransformVec2(t, &(srcBox->min), &transformedVec);
+	destBox->min = transformedVec;
+	TransformVec2(t, &(srcBox->max), &transformedVec);
+	
+	destBox->max = transformedVec;
 }
 
 void NormalizeVec3(Vector3 * srcV, Vector3 * destV)
@@ -224,7 +231,7 @@ float Maximum(float a, float b)
 }
 
 
-void UnionBB(BoundingBox2D *b1, BoundingBox *b2, BoundingBox2D *outb)
+void UnionBB(BoundingBox2D *b1, BoundingBox2D *b2, BoundingBox2D *outb)
 {
 	outb->min.x = Minimum(b1->min.x, b2->min.x);
 	outb->min.y = Minimum(b1->min.y, b2->min.y);

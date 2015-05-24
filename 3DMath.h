@@ -1,5 +1,5 @@
-#ifndef THREEDMATH_H
-#define THREEDMATH_H
+#ifndef DMATH_H
+#define DMATH_H
 
 typedef struct
 {
@@ -48,6 +48,7 @@ inline Transform MakeScale(Vector3 * v);
 inline Transform RotateX(float angle);
 inline Transform RotateY(float angle);
 inline Transform RotateZ(float angle);
+void TransformVec2(Transform * t, Vector2 * srcV, Vector2 * destV);
 void TransformVec3(Transform * t, Vector3 * srcV, Vector3 * destV);
 void TransformTrans(Transform * t, Transform *srcT, Transform *destT);
 void TransformRay(Transform * t, Ray * srcR, Ray * destR);
