@@ -2,6 +2,7 @@
 #include "3DMath.h"
 #include "TriangleMesh.h"
 #include <malloc.h>
+#include "Window.h"
 
 int main()
 {
@@ -16,5 +17,6 @@ int main()
 	Triangle * tris = malloc(sizeof(Triangle)*sphere.numTris);
 	GetTrianglesFromMesh(&sphere, tris);
 	printf("Triangles harvested correctly\n");
+	makeWindow(500, 500);
 	return 0;
 }

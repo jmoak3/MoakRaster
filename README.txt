@@ -1,6 +1,7 @@
 In terminal:
 
 ---------------
-gcc 3DMath.{h,c} MoakRaster.c MeshLoad.h TriangleMesh.{h,c} Material.h -o MoakRaster -lm
+sudo apt-get install libsdl2-dev
+make
 ./MoakRaster
 --------
