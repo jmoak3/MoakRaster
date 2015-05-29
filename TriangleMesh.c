@@ -14,29 +14,10 @@ void FormTriangleMesh(char * fileName, TriangleMesh * mesh, Transform * t, Mater
 	LoadMesh("sphere.obj", indices, points, &numInd, &numPts);
 	printf("Mesh Loaded Correctly\n");
 
-	if (1)
-	{	
-		int i=0;
-		FILE*fp = fopen("test2.txt", "w");
-		for (i=0;i<numPts;i+=1)
-		{
-			fprintf(fp, "%f, %f, %f\n", (*points)[i].x, (*points)[i].y, (*points)[i].z);
-		}
-		for (i=0;i<numInd;i+=3)
-		{
-			fprintf(fp, "%i, %i, %i\n", (*indices)[i], (*indices)[i+1], (*indices)[i+2]);
-		}
-		fclose(fp);
-	}
-
 	mesh->o2w = t;
 	mesh->material = *mat;
 	mesh->numTris = numInd/3;
 	mesh->numVerts = numPts;
-	//mesh->vertIndices = malloc(sizeof(int)*numInd);
-	//mesh->vertPoints = malloc(sizeof(Vector3)*numPts);
-	//memcpy(mesh->vertIndices, indices, sizeof(int)*numInd);
-	//memcpy(mesh->vertPoints, points, sizeof(Vector3)*numPts);
 	mesh->vertIndices = *indices;
 	mesh->vertPoints = *points;
 	int i=0;
@@ -49,21 +30,6 @@ void FormTriangleMesh(char * fileName, TriangleMesh * mesh, Transform * t, Mater
 		UnionVec3(&bbox, &(*points)[i], &bbox);
 	mesh->bbox = bbox;
 	mesh->shapeID = -1; //FIX ME LATER
-
-	if (1)
-	{	
-		int i=0;
-		FILE*fp = fopen("test3.txt", "w");
-		for (i=0;i<numPts;i+=1)
-		{
-			fprintf(fp, "%f, %f, %f\n", mesh->vertPoints[i].x, mesh->vertPoints[i].y, mesh->vertPoints[i].z);
-		}
-		for (i=0;i<numInd;i+=3)
-		{
-			fprintf(fp, "%i, %i, %i\n", mesh->vertIndices[i], mesh->vertIndices[i+1], mesh->vertIndices[i+2]);
-		}
-		fclose(fp);
-	}
 }
 
 void GetTrianglesFromMesh(TriangleMesh * mesh, Triangle * tri)
