@@ -1,5 +1,5 @@
 CC = gcc
-FILES = 3DMath.h 3DMath.c MoakRaster.c MeshLoad.h TriangleMesh.h TriangleMesh.c Material.h Window.h
+FILES = 3DMath.h 3DMath.c MoakRaster.c MeshLoad.h TriangleMesh.h TriangleMesh.c Material.h Window.h Render.h Render.c
 
 OUT_EXE = MoakRaster
 

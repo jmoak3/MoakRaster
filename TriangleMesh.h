@@ -18,7 +18,6 @@ typedef struct
 
 typedef struct
 {
-	Transform * o2w;
 	Material material;
 	int numTris;
 	int numVerts;
@@ -30,7 +29,6 @@ typedef struct
 
 typedef struct
 {
-	Transform * o2w;
 	TriangleMesh * mesh;
 	BoundingBox2D bbox;
 	int * vert;	
@@ -38,8 +36,11 @@ typedef struct
 
 void FormTriangleMesh(char * fileName, TriangleMesh * mesh, Transform * t, Material * mat);
 void GetTrianglesFromMesh(TriangleMesh * mesh, Triangle * triangles);
-int DoesIntersectTri(Triangle * tri, Ray * ray, Hit * hit);
-int DoesIntersectMesh(TriangleMesh * mesh, Ray * ray, Hit * hit);
+int DoesRayIntersectTri(Triangle * tri, Ray * ray, Hit * hit);
+int DoesRayIntersectMesh(TriangleMesh * mesh, Ray * ray, Hit * hit);
+int DoesPointLieOnTri(Triangle * tri, Vector2 * pt, Hit * hit);
+int AffineTest(Triangle * tri, Vector2 * pt, Hit * hit);
+int EdgeTest(Triangle * tri, Vector2 * pt, Hit * hit);
 int ReleaseMeshData(TriangleMesh * mesh);
 int ReleaseTriangleDataOnly(Triangle * tris);
 

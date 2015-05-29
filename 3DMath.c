@@ -190,11 +190,6 @@ void NormalizeVec3(Vector3 * srcV, Vector3 * destV)
 	destV->z = z*inv;
 }
 
-float DotVec3(Vector3 *v1, Vector3 *v2)
-{ 
-	return (v1->x*v2->x + v1->y*v2->y + v1->z*v2->z); 
-}
-
 void CrossVec3(Vector3 *v1, Vector3 *v2, Vector3 *outV)
 {
 	outV->x = (v1->y * v2->z) - (v1->z * v2->y);
@@ -207,6 +202,12 @@ void SubVec3(Vector3 * v1, Vector3 * v2, Vector3 * outV)
 	outV->x = v1->x - v2->x;
 	outV->y = v1->y - v2->y;
 	outV->z = v1->z - v2->z;
+}
+
+void SubVec2(Vector2 * v1, Vector2 * v2, Vector2 * outV)
+{
+	outV->x = v1->x - v2->x;
+	outV->y = v1->y - v2->y;
 }
 
 void AddVec3(Vector3 * v1, Vector3 * v2, Vector3 * outV)
@@ -230,13 +231,22 @@ float Maximum(float a, float b)
 	return max;
 }
 
+float DotVec3(Vector3 *v1, Vector3 *v2)
+{ 
+	return (v1->x*v2->x + v1->y*v2->y + v1->z*v2->z); 
+}
+
+float DetVec2(Vector2 *v1, Vector2 *v2)
+{
+	return v2->x*v1->y - v2->y*v1->x;
+}
 
 void UnionBB(BoundingBox2D *b1, BoundingBox2D *b2, BoundingBox2D *outb)
 {
-	outb->min.x = Minimum(b1->min.x, b2->min.x);
-	outb->min.y = Minimum(b1->min.y, b2->min.y);
-	outb->max.x = Maximum(b1->max.x, b2->max.x);
-	outb->max.y = Maximum(b1->max.y, b2->max.y);
+	outb->min.x = Minimum(b1->min.x, b2->min.x);//  Min-------| since Raster!!
+	outb->min.y = Minimum(b1->min.y, b2->min.y);//   |        | 
+	outb->max.x = Maximum(b1->max.x, b2->max.x);//   |        | 
+	outb->max.y = Maximum(b1->max.y, b2->max.y);//   --------Max
 }
 
 void UnionVec3(BoundingBox2D *b1, Vector3 *pt, BoundingBox2D *outb)

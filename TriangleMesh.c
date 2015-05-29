@@ -14,7 +14,6 @@ void FormTriangleMesh(char * fileName, TriangleMesh * mesh, Transform * t, Mater
 	LoadMesh("sphere.obj", indices, points, &numInd, &numPts);
 	printf("Mesh Loaded Correctly\n");
 
-	mesh->o2w = t;
 	mesh->material = *mat;
 	mesh->numTris = numInd/3;
 	mesh->numVerts = numPts;
@@ -38,11 +37,10 @@ void GetTrianglesFromMesh(TriangleMesh * mesh, Triangle * tri)
 	for (i=0;i<mesh->numTris;++i)
 	{
 		Triangle t;
-		t.o2w = mesh->o2w;
 		t.mesh = mesh;
 		t.vert = &(mesh->vertIndices[3*i]);
 		printf("Tri verts initialized\n");
-		Vector3 g = mesh->vertPoints[1];
+		Vector3 g = mesh->vertPoints[0];
 		printf("%f %f %f\n", g.x, g.y, g.z);
 		Vector3 a = mesh->vertPoints[t.vert[0]];
 		Vector3 b = mesh->vertPoints[t.vert[1]];
@@ -52,13 +50,14 @@ void GetTrianglesFromMesh(TriangleMesh * mesh, Triangle * tri)
 						    bbox.max.x = a.x; bbox.max.y = a.y;
 		UnionVec3(&bbox, &b, &bbox);
 		UnionVec3(&bbox, &c, &bbox);
-		printf("BBox initialized\n");
+		printf("BBox initialized Min: %f,%f Max: %f,%f\n",
+					bbox.min.x, bbox.min.y, bbox.max.x, bbox.max.y);
 		t.bbox = bbox;
 		tri[i] = t;
 	}
 }
 
-int DoesIntersectTri(Triangle * tri, Ray * ray, Hit * hit)
+int DoesRayIntersectTri(Triangle * tri, Ray * ray, Hit * hit)
 {
 	//BEFORE TESTING IF TRI INTERSECT, ALWAYS TEST THAT MESH INTERSECT FIRST!!!!!!
 	if (!DoesIntersectBBox2D(&(tri->bbox), ray)) 
@@ -104,7 +103,7 @@ int DoesIntersectTri(Triangle * tri, Ray * ray, Hit * hit)
 	return 1;
 }
 
-int DoesIntersectMesh(TriangleMesh * mesh, Ray * ray, Hit * hit)
+int DoesRayIntersectMesh(TriangleMesh * mesh, Ray * ray, Hit * hit)
 {
 	if (!DoesIntersectBBox2D(&(mesh->bbox), ray) )
 		return 0;
@@ -114,17 +113,61 @@ int DoesIntersectMesh(TriangleMesh * mesh, Ray * ray, Hit * hit)
 	int i=0;
 	for (i=0;i<mesh->numTris;++i)
 	{
-		result = result || DoesIntersectTri(&tris[i], ray, hit);
+		result = result || DoesRayIntersectTri(&tris[i], ray, hit);
 	}
 	return result;
 }
 
+int DoesPointLieOnTri(Triangle * tri, Vector2 * pt, Hit * hit)
+{
+	//Solve for NBC
+	//If more than 1 we done here
+	//Otherwise, hit.
+	//Interpolate the edge colors!
+	//Use Top-Left!!!
+
+	return EdgeTest(tri, pt, hit);
+}
+
+int AffineTest(Triangle * tri, Vector2 * pt, Hit * hit)
+{
+	Vector3 a = tri->mesh->vertPoints[tri->vert[0]];
+	Vector3 b = tri->mesh->vertPoints[tri->vert[1]];
+	Vector3 c = tri->mesh->vertPoints[tri->vert[2]];
+	Vector2 V0V1; V0V1.x = b.x-a.x; V0V1.y = b.y-a.y;
+	Vector2 V2V0; V2V0.x = a.x-c.x; V2V0.y = a.y-c.y;
+	Vector2 PV0;  PV0.x = a.x-pt->x; PV0.y = a.y-pt->y;
+	Vector2 PV2;  PV2.x = c.x-pt->x; PV2.y = c.y-pt->y;
+	float den = 1.f/DetVec2(&V0V1, &V2V0);
+	float n1 = DetVec2(&V2V0, &PV2)*den;
+	if (n1<0.f || n1>1.f) return 0;
+	float n2 = DetVec2(&V0V1, &PV0)*den;
+	if (n2<0.f || n2>1.f) return 0;
+	hit->material = tri->mesh->material;
+	return n1+n2<1.001f;
+}
+
+int EdgeTest(Triangle * tri, Vector2 * pt, Hit * hit)
+{
+	Vector3 a = tri->mesh->vertPoints[tri->vert[0]];
+	Vector3 b = tri->mesh->vertPoints[tri->vert[1]];
+	Vector3 c = tri->mesh->vertPoints[tri->vert[2]];
+	Vector2 V0V1; V0V1.x = b.x-a.x; V0V1.y = b.y-a.y;
+	Vector2 V1V2; V1V2.x = c.x-b.x; V1V2.y = c.y-b.y;
+	Vector2 V2V0; V2V0.x = a.x-c.x; V2V0.y = a.y-c.y;
+	Vector2 PV0;  PV0.x = a.x-pt->x; PV0.y = a.y-pt->y;
+	Vector2 PV1;  PV1.x = b.x-pt->x; PV1.y = b.y-pt->y;
+	Vector2 PV2;  PV2.x = c.x-pt->x; PV2.y = c.y-pt->y;
+	hit->material = tri->mesh->material;
+	return (DetVec2(&V0V1, &PV0) > 0.f) 
+		&& (DetVec2(&V1V2, &PV1) > 0.f)
+		&& (DetVec2(&V2V0, &PV2) > 0.f); 
+}
 
 int ReleaseMeshData(TriangleMesh * mesh)
 {
 	free(mesh->vertIndices);
 	free(mesh->vertPoints);
-	free(mesh->o2w);
 }
 
 int ReleaseTriangleDataOnly(Triangle * tris)
@@ -133,7 +176,6 @@ int ReleaseTriangleDataOnly(Triangle * tris)
 	int i=0;
 	for (i=0;i<numTris;++i)
 	{
-		free(tris[i].o2w);
 		free(tris[i].vert);
 	}
 	free(tris);
