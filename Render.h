@@ -7,6 +7,7 @@ static char * Pixels;
 
 void InitializePixels(int width, int height);
 void ReleasePixels();
+void ResetBuffer(int width, int height);
 void RenderMesh(int width, int height, Triangle *tris);
 void Render(int width, int height, char *fileName, Vector3 camLocation);
 

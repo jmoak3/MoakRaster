@@ -36,6 +36,7 @@ typedef struct
 
 void FormTriangleMesh(char * fileName, TriangleMesh * mesh, Transform * t, Material * mat);
 void GetTrianglesFromMesh(TriangleMesh * mesh, Triangle * triangles);
+void TransformTriangles(Triangle * tris, Transform * t);
 int DoesRayIntersectTri(Triangle * tri, Ray * ray, Hit * hit);
 int DoesRayIntersectMesh(TriangleMesh * mesh, Ray * ray, Hit * hit);
 int DoesPointLieOnTri(Triangle * tri, Vector2 * pt, Hit * hit);

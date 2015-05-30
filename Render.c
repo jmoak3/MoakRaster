@@ -1,13 +1,15 @@
 #include "Render.h"
 #include "Window.h"
 #include "TriangleMesh.h"
-
+#include "time.h"
 
 void InitializePixels(int width, int height)
 {
 	//initiialize pixels - 2D array 
 	Pixels = malloc(sizeof(char*)*height*width*3);
+	ResetBuffer(width, height);
 	printf("Pixels Initialized!\n");
+
 	//done
 }
 
@@ -17,18 +19,34 @@ void ReleasePixels(int width, int height)
 	Pixels = 0;
 }
 
+void ResetBuffer(int width, int height)
+{
+	//reset buffer
+	int bg = 0;
+	int i,j;
+	for (i=0;i<height;++i)
+	{
+		for (j=0;j<width;++j)
+		{
+			Pixels[i*width*3 + j*3 + 0] = (char)bg;
+			Pixels[i*width*3 + j*3 + 1] = (char)bg;
+			Pixels[i*width*3 + j*3 + 2] = (char)bg;
+		}
+	}
+}
+
 void RenderMesh(int width, int height, Triangle *tris)
 {
     int column, row, i;
 	int numTris = tris[0].mesh->numTris;
-	Hit hit; Vector2 pt; //preallocate
+	Hit hit; Vector2 pt; int t,b,l,r; //preallocate
 	for (i=0;i<numTris;++i)
 	{
-		int t = tris[i].bbox.max.y;
-		int b = tris[i].bbox.max.y;
-		int l = tris[i].bbox.min.x;
-		int r = tris[i].bbox.max.x;
-		//printf("t %f b %f l %f r %f\n", t,b,l,r);
+		t = tris[i].bbox.min.y;
+		b = Minimum(tris[i].bbox.max.y+1, height);
+		l = tris[i].bbox.min.x;
+		r = Minimum(tris[i].bbox.max.x+1, width);
+		//printf("t %i b %i l %i r %i\n", t,b,l,r);
 		for (row=t;row<b;++row)
 		{
 			for (column=l;column<r;++column)
@@ -36,55 +54,74 @@ void RenderMesh(int width, int height, Triangle *tris)
 				pt.x = column; pt.y = row;
 				if (DoesPointLieOnTri(&(tris[i]), &pt, &hit))
 				{
-					Pixels[row*width + column*3 + 0] = (char)hit.material.red;
-					Pixels[row*width + column*3 + 1] = (char)hit.material.blue;
-					Pixels[row*width + column*3 + 2] = (char)hit.material.green;
-					printf("Rendered something!\n");
-				}
-				else
-				{
-					Pixels[row*width + column*3 + 0] = (char)60;
-					Pixels[row*width + column*3 + 1] = (char)60;
-					Pixels[row*width + column*3 + 2] = (char)60;
-					printf("Rendered nothing!\n");
+					Pixels[row*width*3 + column*3 + 0] = (char)hit.material.red;
+					Pixels[row*width*3 + column*3 + 1] = (char)hit.material.blue;
+					Pixels[row*width*3 + column*3 + 2] = (char)hit.material.green;
+					//printf("Rendered %f %f %f\n", 
+					//		hit.material.red,
+					//		hit.material.green,
+					//		hit.material.blue);
 				}
 			}
 		}
 	}	
-    
-	//Display Pixels
-	UpdateWindow(Pixels, width, height);
 }
 
 void Render(int width, int height, char *fileName, Vector3 cam)
 {
+	
 	Transform rasterTrans;
-	Vector3 offset; offset.x = 0.f; offset.y = 0.f; offset.z = 1.f;
+	Vector3 offset; offset.x = 0.f; offset.y = 0.f; offset.z = 0.2f;
 	Transform meshOffset = MakeTranslation(&offset);
-	float temp = 0.1f/(-2.f);
-	Vector3 v1; v1.x = temp/width; v1.y = -temp/height; v1.z = -1.f;
-	Transform t1 = MakeScale(&v1);
-    TransformTrans(&t1, &meshOffset, &rasterTrans);
-	Vector3 v2; v2.x = 1.f; v2.y = 1.f; v2.z = 0.f;
-	Transform t2 = MakeTranslation(&v2);
-    TransformTrans(&t2, &rasterTrans, &rasterTrans);
+	float temp = 0.1f/offset.z;
+	Vector3 v; v.x = temp; v.y = -temp; v.z = 1.f;
+	Transform t = MakeScale(&v);
+    TransformTrans(&t, &meshOffset, &rasterTrans);
+	v.x = (float)width/(float)height; v.y = 1.f; v.z = 0.f;
+	t = MakeTranslation(&v);
+    TransformTrans(&t, &rasterTrans, &rasterTrans);
+	v.x = height/(2.0f); v.y = height/2.0f; v.z = 1.f;
+	t = MakeScale(&v);
+    TransformTrans(&t, &rasterTrans, &rasterTrans);
 
-    //Iniitializemesh
+    //Initializemesh
 	TriangleMesh mesh;
-	Material mat; mat.red = 1.f; mat.green = 0.f; mat.blue = 0.f;
+	Material mat; mat.red = 255.f; mat.green = 0.f; mat.blue = 0.f;
 	FormTriangleMesh(fileName, &mesh, &rasterTrans, &mat);
 	printf("TriangleMesh Formed Made correctly\n");
 	Triangle * tris = malloc(sizeof(Triangle)*mesh.numTris);
 	GetTrianglesFromMesh(&mesh, tris);
 	printf("Triangles harvested correctly\n");
 	
-	//Render loop
 	InitializePixels(width, height);
 	MakeWindow(width, height);
-	//while (1)
-	RenderMesh(width, height, tris);
-	long i; for (i=1;i<1300;++i) {RenderMesh(width, height, tris);}
+
+
+	Vector3 move; Transform moveT; //Preallocations
+	struct timespec timeobj;
+	clock_gettime(CLOCK_MONOTONIC, &timeobj);
+	double lastTime = timeobj.tv_sec*1000.0 + timeobj.tv_nsec/1000000.0;
+	long i; for (i=0;i<500;++i) 
+	{
+		move.x = 1.f; move.y = 0.f; move.z = 0.f;
+		moveT = MakeTranslation(&move);
+	    TransformTriangles(tris, &moveT);
+
+		//Render Mesh to buffer
+		RenderMesh(width, height, tris);
+
+		//Display Pixels
+		UpdateWindow(Pixels, width, height);
+
+		//Reset to Gray
+		ResetBuffer(width, height);
+	}
+	clock_gettime(CLOCK_MONOTONIC, &timeobj);
+	double currTime = timeobj.tv_sec*1000.0 + timeobj.tv_nsec/1000000.0;
+	double finalTime = (currTime-lastTime)/500.0;
+	printf("Rendering at %fms per frame\n", finalTime);
 
 	//Release Pixels
 	ReleasePixels(width, height);
+	ReleaseTriangleDataOnly(tris);
 }

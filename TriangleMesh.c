@@ -57,6 +57,19 @@ void GetTrianglesFromMesh(TriangleMesh * mesh, Triangle * tri)
 	}
 }
 
+void TransformTriangles(Triangle *tris, Transform *t)
+{
+	TriangleMesh *mesh = tris[0].mesh;
+	int numVerts = mesh->numVerts;
+	int numTris = mesh->numTris;
+	int i=0;
+	for (i=0;i<numVerts;++i) // Apply new transform to verts!
+		TransformVec3(t, &(mesh->vertPoints[i]), &(mesh->vertPoints[i]));
+	TransformBBox(t, &(mesh->bbox), &(mesh->bbox));
+	for (i=0;i<numTris;++i)
+		TransformBBox(t, &(tris[i].bbox), &(tris[i].bbox));
+}
+
 int DoesRayIntersectTri(Triangle * tri, Ray * ray, Hit * hit)
 {
 	//BEFORE TESTING IF TRI INTERSECT, ALWAYS TEST THAT MESH INTERSECT FIRST!!!!!!
@@ -126,7 +139,7 @@ int DoesPointLieOnTri(Triangle * tri, Vector2 * pt, Hit * hit)
 	//Interpolate the edge colors!
 	//Use Top-Left!!!
 
-	return EdgeTest(tri, pt, hit);
+	return AffineTest(tri, pt, hit);
 }
 
 int AffineTest(Triangle * tri, Vector2 * pt, Hit * hit)
@@ -172,11 +185,5 @@ int ReleaseMeshData(TriangleMesh * mesh)
 
 int ReleaseTriangleDataOnly(Triangle * tris)
 {
-	int numTris = tris[0].mesh->numTris;
-	int i=0;
-	for (i=0;i<numTris;++i)
-	{
-		free(tris[i].vert);
-	}
 	free(tris);
 }
