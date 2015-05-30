@@ -100,10 +100,19 @@ void Render(int width, int height, char *fileName, Vector3 cam)
 	Vector3 move; Transform moveT; //Preallocations
 	struct timespec timeobj;
 	clock_gettime(CLOCK_MONOTONIC, &timeobj);
-	double lastTime = timeobj.tv_sec*1000.0 + timeobj.tv_nsec/1000000.0;
+	double startTime = timeobj.tv_sec*1000.0 + timeobj.tv_nsec/1000000.0;
+	float prevTime = timeobj.tv_sec + timeobj.tv_nsec/1000000000.0;
+	float currTime = 0.0;
+	float dt = 0.001f;
+	printf("\n");
 	long i; for (i=0;i<500;++i) 
 	{
-		move.x = 1.f; move.y = 0.f; move.z = 0.f;
+		clock_gettime(CLOCK_MONOTONIC, &timeobj);
+		currTime = timeobj.tv_sec + timeobj.tv_nsec/1000000000.0;
+		
+		dt = Maximum(currTime-prevTime, 0.00001f); 
+		
+		move.x = 100.f*dt; move.y = 0.f; move.z = 0.f;
 		moveT = MakeTranslation(&move);
 	    TransformTriangles(tris, &moveT);
 
@@ -115,11 +124,14 @@ void Render(int width, int height, char *fileName, Vector3 cam)
 
 		//Reset to Gray
 		ResetBuffer(width, height);
+
+		//currTime is the prevtTime
+		prevTime = currTime;
 	}
 	clock_gettime(CLOCK_MONOTONIC, &timeobj);
-	double currTime = timeobj.tv_sec*1000.0 + timeobj.tv_nsec/1000000.0;
-	double finalTime = (currTime-lastTime)/500.0;
-	printf("Rendering at %fms per frame\n", finalTime);
+	double endTime = timeobj.tv_sec*1000.0 + timeobj.tv_nsec/1000000.0;
+	double finalTime = (endTime-startTime)/500.0;
+	printf("Rendering at %fms per frame on avg\n", finalTime);
 
 	//Release Pixels
 	ReleasePixels(width, height);
