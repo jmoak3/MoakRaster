@@ -5,14 +5,14 @@
 
 void FormTriangleMesh(char * fileName, TriangleMesh * mesh, Transform * t, Material * mat)
 {
-	printf("Inside FormTriangleMesh\n");
+	//printf("Inside FormTriangleMesh\n");
 	int ** indices = malloc(sizeof(int*));
 	Vector3 ** points = malloc(sizeof(Vector3*));
 	int numInd = 0;
 	int numPts = 0;
-	printf("Loading Mesh:\n");
-	LoadMesh("sphere.obj", indices, points, &numInd, &numPts);
-	printf("Mesh Loaded Correctly\n");
+	//printf("Loading Mesh:\n");
+	LoadMesh(fileName, indices, points, &numInd, &numPts);
+	//printf("Mesh Loaded Correctly\n");
 
 	mesh->material = *mat;
 	mesh->numTris = numInd/3;
@@ -39,19 +39,19 @@ void GetTrianglesFromMesh(TriangleMesh * mesh, Triangle * tri)
 		Triangle t;
 		t.mesh = mesh;
 		t.vert = &(mesh->vertIndices[3*i]);
-		printf("Tri verts initialized\n");
+		//printf("Tri verts initialized\n");
 		Vector3 g = mesh->vertPoints[0];
-		printf("%f %f %f\n", g.x, g.y, g.z);
+		//printf("%f %f %f\n", g.x, g.y, g.z);
 		Vector3 a = mesh->vertPoints[t.vert[0]];
 		Vector3 b = mesh->vertPoints[t.vert[1]];
 		Vector3 c = mesh->vertPoints[t.vert[2]];
-		printf("bbox initializing\n");
+		//printf("bbox initializing\n");
 		BoundingBox2D bbox; bbox.min.x = a.x; bbox.min.y = a.y;
 						    bbox.max.x = a.x; bbox.max.y = a.y;
 		UnionVec3(&bbox, &b, &bbox);
 		UnionVec3(&bbox, &c, &bbox);
-		printf("BBox initialized Min: %f,%f Max: %f,%f\n",
-					bbox.min.x, bbox.min.y, bbox.max.x, bbox.max.y);
+		//printf("BBox initialized Min: %f,%f Max: %f,%f\n",
+		//			bbox.min.x, bbox.min.y, bbox.max.x, bbox.max.y);
 		t.bbox = bbox;
 		tri[i] = t;
 	}
@@ -156,7 +156,18 @@ int AffineTest(Triangle * tri, Vector2 * pt, Hit * hit)
 	if (n1<0.f || n1>1.f) return 0;
 	float n2 = DetVec2(&V0V1, &PV0)*den;
 	if (n2<0.f || n2>1.f) return 0;
-	hit->material = tri->mesh->material;
+
+	//Show depth on dragon
+	float avgZ = (a.z+b.z+c.z)/3.f;
+	float r = Minimum((avgZ+1.f)*255.f*0.4f, 255.f);
+	float g = 100.f;
+	float bl = 25.f;
+
+	hit->material.red = r;
+	hit->material.green = g;
+	hit->material.blue = bl;
+
+	//hit->material = tri->mesh->material;
 	return n1+n2<1.001f;
 }
 

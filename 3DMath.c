@@ -54,12 +54,12 @@ Transform MakeScale(Vector3 * v)
 	return t;
 }
 
-extern Transform RotateX(float angle)
+Transform RotateX(float angle)
 {
 	Transform t;
 
-	float sint = sinf((0.017453f*angle));
-	float cost = cosf((0.017453f*angle));
+	float sint = sin((0.017453f*angle));
+	float cost = cos((0.017453f*angle));
 	t.m[0][0] = 1.f;
 	t.m[0][1] = 0.f;
 	t.m[0][2] = 0.f;
@@ -82,7 +82,7 @@ extern Transform RotateX(float angle)
 	return t;
 }
 
-extern Transform RotateY(float angle)
+Transform RotateY(float angle)
 {
 	Transform t;
 
@@ -110,7 +110,7 @@ extern Transform RotateY(float angle)
 	return t;
 }
 
-extern Transform RotateZ(float angle)
+Transform RotateZ(float angle)
 {
 	Transform t;
 
