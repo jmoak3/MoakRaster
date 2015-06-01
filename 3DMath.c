@@ -1,5 +1,6 @@
 #include "3DMath.h"
 #include <math.h>
+#include <string.h>
 
 Transform MakeTranslation(Vector3 * v)
 {
@@ -54,7 +55,7 @@ Transform MakeScale(Vector3 * v)
 	return t;
 }
 
-extern Transform RotateX(float angle)
+Transform RotateX(float angle)
 {
 	Transform t;
 
@@ -82,7 +83,7 @@ extern Transform RotateX(float angle)
 	return t;
 }
 
-extern Transform RotateY(float angle)
+Transform RotateY(float angle)
 {
 	Transform t;
 
@@ -97,7 +98,7 @@ extern Transform RotateY(float angle)
 	t.m[1][1] = 1.f;
 	t.m[1][2] = 0.f;
 	t.m[1][3] = 0.f;
-
+	
 	t.m[2][0] = -sint;
 	t.m[2][1] = 0.f;
 	t.m[2][2] = cost;
@@ -110,7 +111,7 @@ extern Transform RotateY(float angle)
 	return t;
 }
 
-extern Transform RotateZ(float angle)
+Transform RotateZ(float angle)
 {
 	Transform t;
 
@@ -128,7 +129,7 @@ extern Transform RotateZ(float angle)
 	
 	t.m[2][0] = 0.f;
 	t.m[2][1] = 0.f;
-	t.m[2][2] = 0.f;
+	t.m[2][2] = 1.f;
 	t.m[2][3] = 0.f;
 
 	t.m[3][0] = 0.f;
@@ -292,4 +293,89 @@ int DoesIntersectBBox2D(BoundingBox2D *bbox, Ray * ray)
  	return 1;
 }
 
+void InvertTrans(Transform * t, Transform *it)
+{
+	//SPECIAL THANKS TO
+	//PHYSICALLY BASED RENDERING: FROM THEORY TO IMPLEMENTATION
+	//BY MATT PHARR AND GREG HUMPHREYS
+	//FOR THEIR GREAT IMPLEMENTATION OF 
+	//OF A NUMERICALLY STABLE GUASSIAN-JORDAN ROUTINE!!!
+	int indxc[4], indxr[4];
+	int ipiv[4] = { 0, 0, 0, 0 };
+	//memcpy(it->m, t->m, 4 * 4 * sizeof(float));
+	int a,b;
+	for (a=0;a<4;++a)
+	{
+		for (b=0;b<4;++b)
+		{
+			it->m[a][b] = t->m[a][b];
+		}
+	}
+	int i;
+	for (i = 0; i < 4; ++i) 
+	{
+		int irow = -1, icol = -1;
+		float big = 0.f;
+		int j;
+		for (j = 0; j < 4; j++) 
+		{
+			if (ipiv[j] != 1)
+			{
+				int k;
+				for (k = 0; k < 4; ++k) 
+				{
+					if (ipiv[k] == 0) 
+					{
+						if (fabsf(it->m[j][k]) >= big) 
+						{
+							big = fabsf(it->m[j][k]);
+							irow = j;
+							icol = k;
+						}
+					}
+				}
+			}
+		}
+		++ipiv[icol];
+		if (irow != icol) 
+		{
+			int k;
+			for (k = 0; k < 4; ++k)
+			{
+				float temp = it->m[irow][k];
+				it->m[irow][k] = it->m[icol][k];
+				it->m[icol][k] = temp;
+			}
+		}
+		indxr[i] = irow;
+		indxc[i] = icol;
+		float pivinv = 1.f / it->m[icol][icol];
+		it->m[icol][icol] = 1.f;
+		for (j = 0; j < 4; j++)
+			it->m[icol][j] *= pivinv;
 
+		for (j = 0; j < 4; ++j)
+		 {
+			if (j != icol) 
+			{
+				float save = it->m[j][icol];
+				it->m[j][icol] = 0;
+				int k;
+				for (k = 0; k < 4; k++)
+					it->m[j][k] -= it->m[icol][k] * save;
+			}
+		}
+	}
+	int j; 
+	for (j = 3; j >= 0; --j) 
+	{
+		if (indxr[j] != indxc[j]) {
+			int k; for (k = 0; k < 4; k++)
+			{
+				float temp = it->m[k][indxr[j]];
+				it->m[k][indxr[j]] = it->m[k][indxc[j]];
+				it->m[k][indxc[j]] = temp;
+			}
+		}
+	}
+}

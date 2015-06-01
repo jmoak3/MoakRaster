@@ -11,14 +11,14 @@ int LoadMesh(char * fileName, int ** pindices, Vector3 ** ppoints, int *numInds,
 {
 	char header[64];
 	FILE *fp = fopen(fileName, "r");
-	printf("File formed!\n");
+	//printf("File formed!\n");
 	*numPts = 0;
 	*numInds = 0;
 	int sizePts = 36;
 	int sizeInds = 12;
 	Vector3 *points = malloc(sizeof(Vector3)*sizePts);
 	int *indices = malloc(sizeof(int)*sizeInds);
-	printf("numInds and numPts initialized!\n");
+	//printf("numInds and numPts initialized!\n");
 	int done = 0;
 	while (!feof(fp) && !done)
 	{
@@ -26,14 +26,14 @@ int LoadMesh(char * fileName, int ** pindices, Vector3 ** ppoints, int *numInds,
 		fscanf(fp, "%s", header);
 		if (strcmp(header, "v")==0)
 		{
-			printf("Adding Vertices:");
+			//printf("Adding Vertices:");
 			fscanf(fp, "%s", data);
 			points[*numPts].x = atof(data);
 			fscanf(fp, "%s", data);
 			points[*numPts].y = atof(data);
 			fscanf(fp, "%s", data);
 			points[*numPts].z = atof(data);
-			printf("%f %f %f", points[*numPts].x, points[*numPts].y, points[*numPts].z);
+			//printf("%f %f %f", points[*numPts].x, points[*numPts].y, points[*numPts].z);
 			++(*numPts);
 			if (*numPts >= sizePts) 
 			{
@@ -46,25 +46,26 @@ int LoadMesh(char * fileName, int ** pindices, Vector3 ** ppoints, int *numInds,
 				temp = 0;					
 				sizePts = 2*sizePts;
 			}
-			printf("\n");
+			//printf("\n");
 		}
 		else if (strcmp(header, "f")==0)
 		{
-			printf("Adding Indices:");
+			//printf("Adding Indices:");
+			//f 239/408/237 239/408/237 239/408/237 239/408/237
 			int i=0;
 			for (i=0;i<3;++i)
 			{
-				char read[64];
-				char tri[64];
+				char read[128];
+				char tri[128];
 				int j=0;
-				for (j=0;j<64;++j)
+				for (j=0;j<128;++j)
 				{
 					read[j] = 0;
 					tri[j] = 0;
 				}
 				fscanf(fp, "%s", read);
-				//printf("%s\n", read);
-				for (j=0;j<64;++j)
+				////printf("%s\n", read);
+				for (j=0;j<128;++j)
 				{
 					if (read[j] == '/' && read[j+1] == '/')
 					{
@@ -75,9 +76,9 @@ int LoadMesh(char * fileName, int ** pindices, Vector3 ** ppoints, int *numInds,
 				}
 				int bummy = atoi(tri);
 				indices[*numInds] = bummy-1;
-				printf("%i ", indices[*numInds]);
+				//printf("%i ", indices[*numInds]);
 				++(*numInds);
-				printf("%i", *numInds);
+				//printf("%i", *numInds);
 				if (*numInds >= sizeInds) 
 				{
 					int * temp = (int*)malloc(sizeof(int)*sizeInds*2);
@@ -90,7 +91,7 @@ int LoadMesh(char * fileName, int ** pindices, Vector3 ** ppoints, int *numInds,
 					sizeInds = 2*sizeInds;
 				}
 			}
-			printf("\n");
+			//printf("\n");
 		}
 		else if (strcmp(header, "end")==0)
 		{
@@ -98,7 +99,7 @@ int LoadMesh(char * fileName, int ** pindices, Vector3 ** ppoints, int *numInds,
 		}
 	}
 	fclose(fp);
-	printf("End of reading\n");
+	//printf("End of reading\n");
 
 	//*pindices = malloc(sizeof(int)*(*numInds));
 	//*ppoints = malloc(sizeof(Vector3)*(*numPts));
@@ -108,7 +109,7 @@ int LoadMesh(char * fileName, int ** pindices, Vector3 ** ppoints, int *numInds,
 	*ppoints = points;
 	*pindices = indices;
 
-	printf("Copied pointers \n");
+	//printf("Copied pointers \n");
 
 	if (1)
 	{	

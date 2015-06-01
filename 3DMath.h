@@ -44,10 +44,10 @@ typedef struct
 
 
 Transform MakeTranslation(Vector3 * v); // define using extern
-inline Transform MakeScale(Vector3 * v);
-inline Transform RotateX(float angle);
-inline Transform RotateY(float angle);
-inline Transform RotateZ(float angle);
+Transform MakeScale(Vector3 * v);
+Transform RotateX(float angle);
+Transform RotateY(float angle);
+Transform RotateZ(float angle);
 void TransformVec2(Transform * t, Vector2 * srcV, Vector2 * destV);
 void TransformVec3(Transform * t, Vector3 * srcV, Vector3 * destV);
 void TransformTrans(Transform * t, Transform *srcT, Transform *destT);
@@ -65,5 +65,6 @@ float DotVec3(Vector3 *v1, Vector3 *v2);
 void UnionBB(BoundingBox2D *b1, BoundingBox2D *b2, BoundingBox2D *outb);
 void UnionVec3(BoundingBox2D *b1, Vector3 *pt, BoundingBox2D *outb);
 int DoesIntersectBBox2D(BoundingBox2D *bbox, Ray * ray);
+void InvertTrans(Transform * t, Transform *it);
 
 #endif

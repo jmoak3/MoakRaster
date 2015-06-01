@@ -66,6 +66,6 @@ int main()
 	Vector3 cam; cam.x = 0.0f; cam.y = 0.f; cam.z = 0.f;
 	int width = 800;
 	int height = 600;
-	Render(width, height, "Sphere.obj", cam);
+	Render(width, height, "dragon.obj", cam);
 	return 0;
 }

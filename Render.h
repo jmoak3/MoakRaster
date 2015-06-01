@@ -4,6 +4,7 @@
 #include "TriangleMesh.h"
 
 static char * Pixels;
+static float * DepthBuffer;
 
 void InitializePixels(int width, int height);
 void ReleasePixels();
