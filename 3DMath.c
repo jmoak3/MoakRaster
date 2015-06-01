@@ -59,8 +59,8 @@ Transform RotateX(float angle)
 {
 	Transform t;
 
-	float sint = sinf((0.017453f*angle));
-	float cost = cosf((0.017453f*angle));
+	float sint = sin((0.017453f*angle));
+	float cost = cos((0.017453f*angle));
 	t.m[0][0] = 1.f;
 	t.m[0][1] = 0.f;
 	t.m[0][2] = 0.f;
