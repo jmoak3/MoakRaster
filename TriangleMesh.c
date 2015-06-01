@@ -159,17 +159,10 @@ int AffineTest(Triangle * tri, Vector2 * pt, Hit * hit)
 
 	//Show depth on dragon
 	float avgZ = (a.z+b.z+c.z)/3.f;
-<<<<<<< HEAD
 	float r = Maximum(0.f, Minimum((avgZ+.5f)*255.f*0.8f, 255.f));
 	float g = 100.f;
 	float bl = 25.f;
 	
-=======
-	float r = Minimum((avgZ+1.f)*255.f*0.4f, 255.f);
-	float g = 100.f;
-	float bl = 25.f;
-
->>>>>>> 6c2c6bed04576cd0a1cd8cb602f7cbba770684c6
 	hit->material.red = r;
 	hit->material.green = g;
 	hit->material.blue = bl;

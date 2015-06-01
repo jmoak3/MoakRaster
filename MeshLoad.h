@@ -51,10 +51,7 @@ int LoadMesh(char * fileName, int ** pindices, Vector3 ** ppoints, int *numInds,
 		else if (strcmp(header, "f")==0)
 		{
 			//printf("Adding Indices:");
-<<<<<<< HEAD
-			//f 239/408/237 239/408/237 239/408/237 239/408/237
-=======
->>>>>>> 6c2c6bed04576cd0a1cd8cb602f7cbba770684c6
+			//f 239/408/237 239/408/237 239/408/237 239/408/23
 			int i=0;
 			for (i=0;i<3;++i)
 			{
@@ -68,11 +65,8 @@ int LoadMesh(char * fileName, int ** pindices, Vector3 ** ppoints, int *numInds,
 				}
 				fscanf(fp, "%s", read);
 				////printf("%s\n", read);
-<<<<<<< HEAD
+
 				for (j=0;j<128;++j)
-=======
-				for (j=0;j<64;++j)
->>>>>>> 6c2c6bed04576cd0a1cd8cb602f7cbba770684c6
 				{
 					if (read[j] == '/' && read[j+1] == '/')
 					{
