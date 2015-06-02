@@ -57,17 +57,51 @@ void GetTrianglesFromMesh(TriangleMesh * mesh, Triangle * tri)
 	}
 }
 
-void TransformTriangles(Triangle *tris, Transform *t)
+void PrepareRasterizedDataBuffers(Triangle *tris, TriangleMesh *mesh, 
+	 							  Triangle **outTris, TriangleMesh **outMesh)
+{
+	(*outMesh) = malloc(sizeof(TriangleMesh));
+	(*outMesh)->material = mesh->material;	
+	(*outMesh)->shapeID = mesh->shapeID;	
+	(*outMesh)->numTris = mesh->numTris;	
+	(*outMesh)->numVerts = mesh->numVerts;	
+	(*outMesh)->vertIndices =mesh->vertIndices;
+	(*outMesh)->vertPoints = malloc(sizeof(Vector3)*mesh->numVerts);
+	int k;
+	for (k=0;k<mesh->numVerts;++k)
+	{
+		(*outMesh)->vertPoints[k] = mesh->vertPoints[k];
+	}
+	(*outTris) = malloc(sizeof(Triangle)*mesh->numTris);
+	for (k=0;k<mesh->numTris;++k)
+	{
+		(*outTris)[k].vert = tris[k].vert;
+		(*outTris)[k].mesh = (*outMesh);
+	}
+}
+
+void TransformTrianglesAndMesh(Triangle *tris, Transform *t, 
+							   Triangle *outTris, TriangleMesh *outMesh)
 {
 	TriangleMesh *mesh = tris[0].mesh;
 	int numVerts = mesh->numVerts;
 	int numTris = mesh->numTris;
 	int i=0;
 	for (i=0;i<numVerts;++i) // Apply new transform to verts!
-		TransformVec3(t, &(mesh->vertPoints[i]), &(mesh->vertPoints[i]));
-	TransformBBox(t, &(mesh->bbox), &(mesh->bbox));
+		TransformVec3(t, &(mesh->vertPoints[i]), &(outMesh->vertPoints[i]));
+	//TransformBBox(t, &(mesh->bbox), &(outMesh->bbox)); Doesn't work! FIX BBoxTRANS
 	for (i=0;i<numTris;++i)
-		TransformBBox(t, &(tris[i].bbox), &(tris[i].bbox));
+	{
+		Vector3 a = outMesh->vertPoints[tris[i].vert[0]];
+		Vector3 b = outMesh->vertPoints[tris[i].vert[1]];
+		Vector3 c = outMesh->vertPoints[tris[i].vert[2]];
+		BoundingBox2D bbox; bbox.min.x = a.x; bbox.min.y = a.y;
+						    bbox.max.x = a.x; bbox.max.y = a.y;
+		UnionVec3(&bbox, &b, &bbox);
+		UnionVec3(&bbox, &c, &bbox);
+		outTris[i].bbox = bbox;
+		//TransformBBox(t, &(tris[i].bbox), &(outTris[i].bbox));
+	}
 }
 
 int DoesRayIntersectTri(Triangle * tri, Ray * ray, Hit * hit)
@@ -159,7 +193,7 @@ int AffineTest(Triangle * tri, Vector2 * pt, Hit * hit)
 
 	//Show depth on dragon
 	float avgZ = (a.z+b.z+c.z)/3.f;
-	float r = Maximum(0.f, Minimum((avgZ+.5f)*255.f*0.8f, 255.f));
+	float r = Maximum(0.f, Minimum((avgZ+1.2f)*230.f*0.5f, 255.f));
 	float g = 100.f;
 	float bl = 25.f;
 	

@@ -45,9 +45,9 @@ void RenderMesh(int width, int height, Triangle *tris)
 	Vector3 a,b,c; float avgZ;
 	for (i=0;i<numTris;++i)
 	{
-		top = tris[i].bbox.min.y-1;
+		top = tris[i].bbox.min.y;
 		bot = Minimum(tris[i].bbox.max.y+1, height);
-		lft = tris[i].bbox.min.x-1;
+		lft = tris[i].bbox.min.x;
 		rgt = Minimum(tris[i].bbox.max.x+1, width);
 		//printf("t %i b %i l %i r %i\n", t,b,l,r);
 
@@ -57,17 +57,17 @@ void RenderMesh(int width, int height, Triangle *tris)
 		c = tris[i].mesh->vertPoints[tris[i].vert[2]];
 		V0V1; V0V1.x = b.x-a.x; V0V1.y = b.y-a.y;
 		V2V0; V2V0.x = a.x-c.x; V2V0.y = a.y-c.y;
-		//if (DetVec2(&V0V1, &V2V0) < 0.f) continue;
+		if (DetVec2(&V0V1, &V2V0) < 0.f) continue;
 
 		for (row=top;row<bot;++row)
 		{
 			for (column=lft;column<rgt;++column)
 			{
-				pt.x = column; pt.y = row;
-				if (DoesPointLieOnTri(&(tris[i]), &pt, &hit))
+				avgZ = (a.z+b.z+c.z)/3.f;
+				if (avgZ < DepthBuffer[row*width + column])
 				{
-					avgZ = (a.z+b.z+c.z)/3.f;
-					if (avgZ < DepthBuffer[row*width + column])
+					pt.x = column; pt.y = row;
+					if (DoesPointLieOnTri(&(tris[i]), &pt, &hit))
 					{
 						DepthBuffer[row*width + column] = avgZ;
 						Pixels[row*width*3 + column*3 + 0] = (char)hit.material.red;
@@ -84,9 +84,9 @@ void RenderMesh(int width, int height, Triangle *tris)
 	}
 }
 
-void rasterHelper(Transform *rt, int width, int height)
+void BuildRasterTransform(Transform *rt, int width, int height)
 {
-	Vector3 offset; offset.x = 0.f; offset.y = -1.f; offset.z = 0.4f;
+	Vector3 offset; offset.x = 0.f; offset.y = -1.f; offset.z = 0.3f;
 	Transform meshOffset = MakeTranslation(&offset);
     TransformTrans(&meshOffset, rt, rt);
 	float temp = 0.1f/offset.z;
@@ -103,17 +103,13 @@ void rasterHelper(Transform *rt, int width, int height)
 
 void Render(int width, int height, char *fileName, Vector3 cam)
 {
-	//FIX INVERSION OF MATRIX!!
-	Transform rasterTrans;
-	Transform y = RotateY(130.f);//130
-	Transform x = RotateX(270.f);//270
-    TransformTrans(&y, &x, &rasterTrans);
-	rasterHelper(&rasterTrans, width, height);
+	Vector3 o; o.x = 0.f; o.y = 0.f; o.z = 0.f;
+	Transform or = MakeTranslation(&o);
 
     //Initializemesh
 	TriangleMesh mesh;
 	Material mat; mat.red = 255.f; mat.green = 0.f; mat.blue = 0.f;
-	FormTriangleMesh(fileName, &mesh, &rasterTrans, &mat);
+	FormTriangleMesh(fileName, &mesh, &or, &mat);
 	printf("TriangleMesh Formed correctly\n");
 	Triangle * tris = malloc(sizeof(Triangle)*mesh.numTris);
 	GetTrianglesFromMesh(&mesh, tris);
@@ -122,37 +118,40 @@ void Render(int width, int height, char *fileName, Vector3 cam)
 	InitializePixels(width, height);
 	MakeWindow(width, height);
 
-	Vector3 move;move.x=0.f;Transform moveT, inv; //Preallocations
+	Triangle *rasterTris; TriangleMesh *rasterMesh;
+	PrepareRasterizedDataBuffers(tris, &mesh, &rasterTris, &rasterMesh);
+	printf("Finished Prepping Secondary Buffer\n");
+
+
+	Vector3 move;move.x=0.f; move.z=0.f; Transform moveT, rasterTrans; //Preallocations
+	float yaxis = 130.f;
 	struct timespec timeobj;
 	clock_gettime(CLOCK_MONOTONIC, &timeobj);
 	double startTime = timeobj.tv_sec*1000.0 + timeobj.tv_nsec/1000000.0;
 	float prevTime = timeobj.tv_sec + timeobj.tv_nsec/1000000000.0;
-	float currTime = 0.0;
+	float currTime = 0.0f;
 	float dt = 0.001f;
 	printf("\n");
-	long i; for (i=0;i<150;++i) 
+	long i; for (i=0;i<300;++i) 
 	{
 		clock_gettime(CLOCK_MONOTONIC, &timeobj);
 		currTime = timeobj.tv_sec + timeobj.tv_nsec/1000000000.0;
 		
 		dt = Maximum(currTime-prevTime, 0.00001f); 
 		
-		//Reset tri's positions
-		/*InvertTrans(&rasterTrans, &inv);
-	    TransformTriangles(tris, &inv);
-
 		//Make him move
-		Transform meshRotY = RotateY(130.f);//130
+		yaxis += 15.f*dt;
+		Transform meshRotY = RotateY(yaxis);//130
 		Transform meshRotX = RotateX(270.f);//270
 	    TransformTrans(&meshRotY, &meshRotX, &rasterTrans);
-		move.x = 0.00000f*dt + move.x; move.y = 0.f; move.z = 0.f;
+		move.x = 0.2f*dt+move.x; move.y = 0.f; move.z = 0.f;
 		moveT = MakeTranslation(&move);
 	    TransformTrans(&moveT, &rasterTrans, &rasterTrans);
-	    rasterHelper(&rasterTrans, width, height);
-	    TransformTriangles(tris, &rasterTrans);*/
+	    BuildRasterTransform(&rasterTrans, width, height);
+	    TransformTrianglesAndMesh(tris, &rasterTrans, rasterTris, rasterMesh);
 
 		//Render Mesh to buffer
-		RenderMesh(width, height, tris);
+		RenderMesh(width, height, rasterTris);
 
 		//Display Pixels
 		UpdateWindow(Pixels, width, height);
@@ -165,8 +164,9 @@ void Render(int width, int height, char *fileName, Vector3 cam)
 	}
 	clock_gettime(CLOCK_MONOTONIC, &timeobj);
 	double endTime = timeobj.tv_sec*1000.0 + timeobj.tv_nsec/1000000.0;
-	double finalTime = (endTime-startTime)/150.0;
+	double finalTime = (endTime-startTime)/300.0;
 	printf("Rendering at %fms per frame on avg\n", finalTime);
+
 
 	//Release Pixels
 	ReleasePixels(width, height);

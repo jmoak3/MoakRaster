@@ -178,7 +178,6 @@ void TransformBBox(Transform * t, BoundingBox2D * srcBox, BoundingBox2D * destBo
 	TransformVec2(t, &(srcBox->min), &transformedVec);
 	destBox->min = transformedVec;
 	TransformVec2(t, &(srcBox->max), &transformedVec);
-	
 	destBox->max = transformedVec;
 }
 
