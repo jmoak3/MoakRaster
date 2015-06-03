@@ -21,8 +21,16 @@ typedef struct
 	Material material;
 	int numTris;
 	int numVerts;
+	int numTex;
+	int numTexInds;
+	int numNormals;
+	int numNormalInds;
 	int *vertIndices;
+	int *texIndices;
+	int *normalIndices;
 	Vector3 *vertPoints;
+	Vector3 *normals;
+	Vector2 *texCoords;
 	BoundingBox2D bbox;
 	int shapeID;	
 } TriangleMesh;
@@ -31,7 +39,9 @@ typedef struct
 {
 	TriangleMesh * mesh;
 	BoundingBox2D bbox;
-	int * vert;	
+	int * vert;
+	int * tex;
+	int * normal;
 } Triangle;
 
 void FormTriangleMesh(char * fileName, TriangleMesh * mesh, Transform * t, Material * mat);

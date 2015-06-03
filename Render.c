@@ -32,7 +32,7 @@ void ResetBuffer(int width, int height)
 			Pixels[i*width*3 + j*3 + 0] = (char)bg;
 			Pixels[i*width*3 + j*3 + 1] = (char)bg;
 			Pixels[i*width*3 + j*3 + 2] = (char)bg;
-			DepthBuffer[i*width + j] = INFINITY;
+			DepthBuffer[i*width + j] = INFINITY;//.f;
 		}
 	}
 }
@@ -64,7 +64,7 @@ void RenderMesh(int width, int height, Triangle *tris)
 			for (column=lft;column<rgt;++column)
 			{
 				avgZ = (a.z+b.z+c.z)/3.f;
-				if (avgZ < DepthBuffer[row*width + column])
+				if (avgZ < DepthBuffer[row*width + column] && avgZ > 0.f)
 				{
 					pt.x = column; pt.y = row;
 					if (DoesPointLieOnTri(&(tris[i]), &pt, &hit))
@@ -86,10 +86,10 @@ void RenderMesh(int width, int height, Triangle *tris)
 
 void BuildRasterTransform(Transform *rt, int width, int height)
 {
-	Vector3 offset; offset.x = 0.f; offset.y = -1.f; offset.z = 0.3f;
+	Vector3 offset; offset.x = 0.f; offset.y = -1.f; offset.z = 3.0f;//145.f;//0.3f;
 	Transform meshOffset = MakeTranslation(&offset);
     TransformTrans(&meshOffset, rt, rt);
-	float temp = 0.1f/offset.z;
+	float temp = 1.66f/offset.z;
 	Vector3 v; v.x = temp; v.y = -temp; v.z = 1.f;
 	Transform t = MakeScale(&v);
     TransformTrans(&t, rt, rt);
@@ -140,7 +140,7 @@ void Render(int width, int height, char *fileName, Vector3 cam)
 		dt = Maximum(currTime-prevTime, 0.00001f); 
 		
 		//Make him move
-		yaxis += 15.f*dt;
+		yaxis += 60.f*dt;
 		Transform meshRotY = RotateY(yaxis);//130
 		Transform meshRotX = RotateX(270.f);//270
 	    TransformTrans(&meshRotY, &meshRotX, &rasterTrans);

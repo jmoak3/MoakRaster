@@ -2,23 +2,44 @@
 #include "MeshLoad.h"
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 void FormTriangleMesh(char * fileName, TriangleMesh * mesh, Transform * t, Material * mat)
 {
 	//printf("Inside FormTriangleMesh\n");
 	int ** indices = malloc(sizeof(int*));
 	Vector3 ** points = malloc(sizeof(Vector3*));
+	Vector3 ** normals = malloc(sizeof(Vector3*));
+	Vector2 ** tex = malloc(sizeof(Vector2*));
+	int ** texInds = malloc(sizeof(int*));
+	int ** normalInds = malloc(sizeof(int*));
 	int numInd = 0;
 	int numPts = 0;
+	int numTex = 0;
+	int numTexInds = 0;
+	int numNormals = 0;
+	int numNormalInds = 0;
 	//printf("Loading Mesh:\n");
-	LoadMesh(fileName, indices, points, &numInd, &numPts);
+	LoadMesh(fileName, indices, points, tex, texInds, normals, normalInds,
+		          &numInd, &numPts, &numTex, &numTexInds, &numNormals, &numNormalInds);
 	//printf("Mesh Loaded Correctly\n");
 
 	mesh->material = *mat;
 	mesh->numTris = numInd/3;
 	mesh->numVerts = numPts;
+	mesh->numTex = numTex;
+	mesh->numTexInds = numTexInds;
+	mesh->numNormals = numNormals;
+	mesh->numNormalInds = numNormalInds;
 	mesh->vertIndices = *indices;
 	mesh->vertPoints = *points;
+	mesh->texCoords = *tex;
+	mesh->texIndices = *texInds;
+	mesh->normals = *normals;
+	mesh->normalIndices = *normalInds;
+
+	printf("tris %i tex %i norm %i\n", numInd/3, numTex, numNormals);
+
 	int i=0;
 	for (i=0;i<numPts;++i) // Transform to world space!
 		TransformVec3(t, &(mesh->vertPoints[i]), &(mesh->vertPoints[i]));
@@ -39,6 +60,8 @@ void GetTrianglesFromMesh(TriangleMesh * mesh, Triangle * tri)
 		Triangle t;
 		t.mesh = mesh;
 		t.vert = &(mesh->vertIndices[3*i]);
+		t.tex = &(mesh->texIndices[3*i]);
+		t.normal = &(mesh->normalIndices[3*i]);
 		//printf("Tri verts initialized\n");
 		Vector3 g = mesh->vertPoints[0];
 		//printf("%f %f %f\n", g.x, g.y, g.z);
@@ -65,7 +88,13 @@ void PrepareRasterizedDataBuffers(Triangle *tris, TriangleMesh *mesh,
 	(*outMesh)->shapeID = mesh->shapeID;	
 	(*outMesh)->numTris = mesh->numTris;	
 	(*outMesh)->numVerts = mesh->numVerts;	
-	(*outMesh)->vertIndices =mesh->vertIndices;
+	(*outMesh)->numTex = mesh->numTex;	
+	(*outMesh)->numTexInds = mesh->numTexInds;	
+	(*outMesh)->texCoords = mesh->texCoords;
+	(*outMesh)->texIndices = mesh->texIndices;
+	(*outMesh)->vertIndices = mesh->vertIndices;
+	(*outMesh)->normals = mesh->normals;
+	(*outMesh)->normalIndices = mesh->normalIndices;
 	(*outMesh)->vertPoints = malloc(sizeof(Vector3)*mesh->numVerts);
 	int k;
 	for (k=0;k<mesh->numVerts;++k)
@@ -77,6 +106,8 @@ void PrepareRasterizedDataBuffers(Triangle *tris, TriangleMesh *mesh,
 	{
 		(*outTris)[k].vert = tris[k].vert;
 		(*outTris)[k].mesh = (*outMesh);
+		(*outTris)[k].tex  = tris[k].tex;
+		(*outTris)[k].normal  = tris[k].normal;
 	}
 }
 
@@ -87,9 +118,11 @@ void TransformTrianglesAndMesh(Triangle *tris, Transform *t,
 	int numVerts = mesh->numVerts;
 	int numTris = mesh->numTris;
 	int i=0;
+
 	for (i=0;i<numVerts;++i) // Apply new transform to verts!
 		TransformVec3(t, &(mesh->vertPoints[i]), &(outMesh->vertPoints[i]));
 	//TransformBBox(t, &(mesh->bbox), &(outMesh->bbox)); Doesn't work! FIX BBoxTRANS
+	Vector3 n;
 	for (i=0;i<numTris;++i)
 	{
 		Vector3 a = outMesh->vertPoints[tris[i].vert[0]];
@@ -102,6 +135,9 @@ void TransformTrianglesAndMesh(Triangle *tris, Transform *t,
 		outTris[i].bbox = bbox;
 		//TransformBBox(t, &(tris[i].bbox), &(outTris[i].bbox));
 	}
+	//IF:
+	//Z less than 0, skip
+	//Normal facing wrong way, skip
 }
 
 int DoesRayIntersectTri(Triangle * tri, Ray * ray, Hit * hit)
@@ -191,9 +227,8 @@ int AffineTest(Triangle * tri, Vector2 * pt, Hit * hit)
 	float n2 = DetVec2(&V0V1, &PV0)*den;
 	if (n2<0.f || n2>1.f) return 0;
 
-	//Show depth on dragon
-	float avgZ = (a.z+b.z+c.z)/3.f;
-	float r = Maximum(0.f, Minimum((avgZ+1.2f)*230.f*0.5f, 255.f));
+	float avgZ = a.z*(1.f-(n1+n2)) + b.z*n1 + c.z*n2;
+	float r = Maximum(0.f, Minimum((sinf(avgZ*2.5f))*255.f, 255.f));
 	float g = 100.f;
 	float bl = 25.f;
 	
